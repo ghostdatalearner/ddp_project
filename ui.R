@@ -1,7 +1,18 @@
 library(shiny)
 
 shinyUI(fluidPage(
-  titlePanel("Basic widgets"),
+  titlePanel("Unemployent evolution in Spain 2005-2014"),
+  p("Unemployment has been a severe problem for Spanish economy since the financial crisis of 2008.
+    Heated political debated focuses on the monthly unemployment figure rise or fall when only mid and long term
+    analysis may discover underlying trends.
+    This application uses the monthly data published by the Spanish Employment Public Service."),
+  p("You may create 4 kinds of graphs. Time evolution by gender and by age group show how abrupt 
+    was unemployment growth after 2008. Due to structural reasons, female unemployment was higher
+    before that date. Crisis reduced that ratio, but late signs of recuperation show that the gap is
+    growing again. Despite the undesirable gender bias, this ratio seems to be a predictor
+    of the turning point and that is what Female/Male Ratio graph shows. Finally, the Monthly Speed
+    graph helps to locate the critical periods of Spanish unemployment growth."),
+  p(""),p(""),
   sidebarLayout(
     sidebarPanel(
       fluidRow(
@@ -37,8 +48,8 @@ shinyUI(fluidPage(
                checkboxGroupInput("checkAge",  label="",
                                   choices = list("Young" = "Y", "Adult" = "A", "Both" = "TOTAL"),
                                  selected = c("Y","A")) 
-        ) 
-      ),
+        ), 
+      
       
       fluidRow( 
         column(10,
@@ -60,19 +71,18 @@ shinyUI(fluidPage(
         column(5,
                checkboxInput("choosespeedGraph", label = "Graph", value = TRUE)
         ) 
+      ),
+      fluidRow(
+        hr(),
+        a(href="http://www.sepe.es/contenidos/que_es_el_sepe/estadisticas/datos_avance/paro/index.html", "Original sheet at Spanish Employment Public Service"),
+        br(""),
+        a(href="unemployment_sp_2005_2014.csv","Raw data")
+      )
       )
       
     ),
     
-  
   mainPanel(
-     h3(textOutput("caption")),
-#     verbatimTextOutput("range"),
-#     verbatimTextOutput("koko"),
-
-
-    
-     verbatimTextOutput("displaygend"),
      conditionalPanel(
         condition="input.choosegendGraph == true",
         fluidRow(
@@ -86,7 +96,6 @@ shinyUI(fluidPage(
                plotOutput("agePlot"))
         )
       ),
-
     conditionalPanel(
       condition="input.chooserateGraph == true",
       fluidRow(
@@ -94,7 +103,6 @@ shinyUI(fluidPage(
                plotOutput("quotPlot"))
       )
     ),
-
     conditionalPanel(
       condition="input.choosespeedGraph == true",
       fluidRow(
@@ -102,15 +110,7 @@ shinyUI(fluidPage(
                plotOutput("speedPlot"))
       )
     )
-# ,
-#     fluidRow(
-#       column(12,
-#              plotOutput("quotPlot")
-#       ),
-#       column(12,
-#              plotOutput("speedPlot")
-#       ) 
-#       )
+
      )
   )
 ))

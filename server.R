@@ -65,12 +65,12 @@ paintquot <- function(k,xlab="",ylab="",title="")
 
 paintspeed <- function(k,xlab="",ylab="",title="")
 {
-  yvmax = 1.1*max(max(k$SPEED),abs(min(k$SPEED)))
+  #yvmax = 1.1*max(max(k$SPEED),abs(min(k$SPEED)))
   k$color<- ifelse(k$SPEED < 0, "red", "green") 
   pl_abs <- ggplot(k,aes(DATE,SPEED))+geom_bar(stat="identity",aes(fill = color)) + ggtitle(title)
-  pl_abs <- pl_abs + labs( x = xlab, y = ylab)  + theme_bw() + theme(legend.position="none")+ ylim(-yvmax,yvmax)
+  pl_abs <- pl_abs + labs( x = xlab, y = ylab)  + theme_bw() + theme(legend.position="none")#+ ylim(-yvmax,yvmax)
   pl_abs <- pl_abs + theme(axis.title.y = element_text(vjust=1.3)) + theme(axis.title.x = element_text(vjust=-0.3)) + theme(title = element_text(vjust=1.3))
-  pl_abs <- pl_abs + geom_text(data = k, mapping=aes(x=DATE[as.integer(0.5*length(DATE))], y=-4), size=4,label = minmaxdates(k,which(names(k)=="SPEED"),twodecs=TRUE))
+  pl_abs <- pl_abs + geom_text(data = k, mapping=aes(x=DATE[as.integer(0.5*length(DATE))], y=-3.5), size=4,label = minmaxdates(k,which(names(k)=="SPEED"),twodecs=TRUE))
   return(pl_abs)
 }
 
@@ -188,6 +188,8 @@ WarningGraph <- function(Message)
 
 shinyServer(function(input, output) {
   
+  output$range <- renderText({input$slideryears})
+  
   output$gendPlot <- renderPlot({
     if (length(input$checkGender) == 0)
       plot1 <- WarningGraph("Choose at least one Gender option, please")
@@ -215,8 +217,8 @@ shinyServer(function(input, output) {
   })
 
 output$speedPlot <- renderPlot({
-    datosquot <- subset_date(dquotgend, input$slideryears[1], input$slideryears[2])
-    plot4 <- paintspeed(datosquot, xlab = "Date", ylab = "Rate", title = "Unemploment monthly growth rate (%)")
+    datosspeed <- subset_date(dquotgend, input$slideryears[1], input$slideryears[2])
+    plot4 <- paintspeed(datosspeed, xlab = "Date", ylab = "Rate", title = "Unemploment monthly growth rate (%)")
     print(plot4)
   })
 
