@@ -1,20 +1,32 @@
+# DDP Project
+# Author: ghostdatalearner
+# Date: October 2014
+# Code at https://github.com/ghostdatalearner/ddp_project
+# Shiny app at https://ghostdatalearner.shinyapps.io/ddp_project/
+
 library(shiny)
 library(ggplot2)
 library(plyr)
 options(warn = -1)
+# Read raw data and add DATE column
 rawdata <- read.csv("unemployment_sp_2005_2014.csv",sep=";")
 rawdata$DATE = as.Date(sprintf("%02d-%02d-01",rawdata$YEAR,rawdata$MONTH),format="%Y-%m-%d")
+# Add data by gender for ratio calculations
 dquotraw <- ddply(rawdata,.(DATE,GENDER),function(x) sum(x$UNEMPLOYED))
 names(dquotraw) = c("DATE","GENDER","UNEMPLOYED")
+# Create aux data frames by age group
 djunior <- rawdata[rawdata$AGEGROUP=='LESS25',]
 dsenior <- rawdata[rawdata$AGEGROUP=='EQMORE25',]
+# Total evlution adding groups ages
 dtotages <- djunior
 for (i in 1:nrow(dtotages))
   dtotages[i,]$UNEMPLOYED <- dtotages[i,]$UNEMPLOYED  + dsenior[i,]$UNEMPLOYED
+# Create aux data frames by gender
 dmale <- rawdata[rawdata$GENDER=='M',]
 dfemale <- rawdata[rawdata$GENDER=='F',]
 dtotgend <- dmale
 ud <- unique(dquotraw$DATE)
+# Aux data frames for ratio and speed computation
 dquotgend <- data.frame(rep(0,length(ud)),ud,rep(0,length(ud)),rep(0,length(ud)))
 names(dquotgend) <- c("RATE","DATE","UNEMPLOYED", "SPEED")
 for (i in 1:nrow(dtotgend))
@@ -30,12 +42,14 @@ for (i in 1:length(ud))
 }
 dquotgend[1,]$SPEED <- 0
 
+# Subset input data frame from initial(liminf) to final(limsup) years
 subset_date <- function(m,liminf, limsup)
 {
   datelimits <- c(paste0(liminf,"-01-01"), paste0(limsup,"-12-31"))
   m <- m[as.POSIXct(m$DATE)>=as.POSIXct(datelimits[1]) & as.POSIXct(m$DATE)<=as.POSIXct(datelimits[2]),]
 }
 
+# Paint time series evolution plot. Valid for Gender and Age plots.
 paintplot <- function(auxtot,xlab="",ylab="",title="",factor="",colors = "", names = "")
 {
   pl_abs <- ggplot(auxtot) + labs( x = xlab, y = ylab)  + ylim(0,1.05*max(auxtot$UNEMPLOYED)/1000)
@@ -53,6 +67,7 @@ paintplot <- function(auxtot,xlab="",ylab="",title="",factor="",colors = "", nam
   return(pl_abs)
 }
 
+# Paint the F/M ratio graph
 paintquot <- function(k,xlab="",ylab="",title="")
 {
   pl_abs <- ggplot(k) + labs( x = xlab, y = ylab)  + theme_bw() + theme(legend.position="none")
@@ -63,6 +78,7 @@ paintquot <- function(k,xlab="",ylab="",title="")
   return(pl_abs)
 }
 
+# Paint the Speed Graph
 paintspeed <- function(k,xlab="",ylab="",title="")
 {
   #yvmax = 1.1*max(max(k$SPEED),abs(min(k$SPEED)))
@@ -74,17 +90,21 @@ paintspeed <- function(k,xlab="",ylab="",title="")
   return(pl_abs)
 }
 
+# Process time evolution by Gender
 processgendevolution <- function (k, gender=c("TOTAL"))
 {
   if (length(gender)==0)
     gender = c("TOTAL")
   colores <- c()
   nombres <- c()
+  # Create empty data frame for Total series if chosen
   auxtot <- data.frame(t(rep(NA,length(names(k)))))[numeric(0), ]
   names(auxtot) <- names(k)
   levels(auxtot$GENDER) <- c("F","M","All")
+  # Subset by Gender
   a <- k[k$GENDER=='F',]
   b <- k[k$GENDER=='M',]
+  # Prepare colors and legend texts
   if ("F" %in% gender){
     colores <- c(colores, "red")
     nombres <- c(nombres, paste("Female\n",minmaxdates(a,which(names(a)=="UNEMPLOYED"))) )
@@ -110,11 +130,14 @@ processgendevolution <- function (k, gender=c("TOTAL"))
     auxtot <- rbind(auxtot,alldf)
     nombres <- c(nombres, paste("TOTAL\n",minmaxdates(auxtot[auxtot$GENDER == 'All',],which(names(auxtot)=="UNEMPLOYED"))) )
   }
+  # Return the ggplot2 graph
   return(paintplot(auxtot,xlab = "Date", ylab = "Unemployed (thousands)", 
                    title = "Unemployment Evolution by Gender", 
                    factor ="GENDER", colors = colores,names = nombres)  )
 }
 
+
+# Find minimum and maximum values and dates 
 minmaxdates <- function(k,col,twodecs=FALSE)
 {
   minimum <- min(k[col])
@@ -129,6 +152,7 @@ minmaxdates <- function(k,col,twodecs=FALSE)
   return(paste0("\n  Max: ",maximum," (",datemax,")\n","  Min: ",minimum," (",datemin,")\n"))
 }
 
+# Equivalent to Gender Evolution for Age Group
 processageevolution <- function (k, agegroup=c("TOTAL"))
 {
   if (length(agegroup)==0)
@@ -170,6 +194,7 @@ processageevolution <- function (k, agegroup=c("TOTAL"))
                    factor ="AGE GROUP", colors = colores, names = nombres)  )
 }
 
+# A Blank graph is generated for Gender or/and Age if none of Gender/Age options are checked
 WarningGraph <- function(Message)
 {
   text = paste(Message)
@@ -186,10 +211,13 @@ WarningGraph <- function(Message)
         panel.grid.minor=element_blank())
 }
 
+
+# Server function
 shinyServer(function(input, output) {
+  # Just for testing
+  # output$range <- renderText({input$slideryears})
   
-  output$range <- renderText({input$slideryears})
-  
+  # Reactive Gender plot generation
   output$gendPlot <- renderPlot({
     if (length(input$checkGender) == 0)
       plot1 <- WarningGraph("Choose at least one Gender option, please")
@@ -200,6 +228,7 @@ shinyServer(function(input, output) {
     print(plot1)
   })
 
+  # Reactive Age plot generation
   output$agePlot <- renderPlot({
     if (length(input$checkAge) == 0)
       plot2 <- WarningGraph("Choose at least one Age Group, please")
@@ -210,13 +239,15 @@ shinyServer(function(input, output) {
     print(plot2)
   })
 
+  # Reactive F/M Ratio plot generation
   output$quotPlot <- renderPlot({
     datosquot <- subset_date(dquotgend, input$slideryears[1], input$slideryears[2])
-    plot3 <- paintquot(datosquot, xlab = "Date", ylab = "Rate", title = "Female/Male Unemployment Rate")
+    plot3 <- paintquot(datosquot, xlab = "Date", ylab = "Ratio", title = "Female/Male Unemployment Ratio")
     print(plot3)
   })
 
-output$speedPlot <- renderPlot({
+  # Reactive Speed plot generation
+  output$speedPlot <- renderPlot({
     datosspeed <- subset_date(dquotgend, input$slideryears[1], input$slideryears[2])
     plot4 <- paintspeed(datosspeed, xlab = "Date", ylab = "Rate", title = "Unemploment monthly growth rate (%)")
     print(plot4)

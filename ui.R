@@ -1,6 +1,13 @@
+# DDP Project
+# Author: ghostdatalearner
+# Date: October 2014
+# Code at https://github.com/ghostdatalearner/ddp_project
+# Shiny app at https://ghostdatalearner.shinyapps.io/ddp_project/
+
 library(shiny)
 
 shinyUI(fluidPage(
+  # Introductory text and basic usage instructions
   titlePanel("Unemployent evolution in Spain 2005-2014"),
   p("Unemployment has been a severe problem for Spanish economy since the financial crisis of 2008.
     Heated political debated focuses on the monthly unemployment figure rise or fall when only mid and long term
@@ -13,17 +20,21 @@ shinyUI(fluidPage(
     of the turning point and that is what Female/Male Ratio graph shows. Finally, the Monthly Speed
     graph helps to locate the critical periods of Spanish unemployment growth."),
   p(""),p(""),
+  a(href="usermanual.pdf","User Manual"),p(""),
   sidebarLayout(
     sidebarPanel(
+      # Year selection
       fluidRow(
         column(10,
         sliderInput("slideryears", label = h4("Time Lapse"), min = 2005, 
                     max = 2014, value = c(2005, 2014), format = "####") ) ),
+      # Select Gender Graph
       fluidRow( 
         column(10,
                h5("Evolution by Gender")
               )
       ),
+      # Gender Options
       fluidRow( 
         column(5,
                checkboxInput("choosegendGraph", label = "Graph", value = TRUE)
@@ -31,29 +42,30 @@ shinyUI(fluidPage(
 
         column(5,
                checkboxGroupInput("checkGender",  label="",
-                                  choices = list("Male" = "M", "Female" = "F", "Both" = "TOTAL"),
+                                  choices = list("Male" = "M", "Female" = "F", "Total" = "TOTAL"),
                                   selected = c("M","F")) 
         )
       ),
+      # Select Age Group Graph
       fluidRow( 
         column(10,
                h5("Evolution by Age")
               )
       ),     
+      # Age Group Options
       fluidRow(
         column(5,
                checkboxInput("chooseageGraph", label = "Graph", value = TRUE)
         ),
         column(5,
                checkboxGroupInput("checkAge",  label="",
-                                  choices = list("Young" = "Y", "Adult" = "A", "Both" = "TOTAL"),
+                                  choices = list("Young" = "Y", "Adult" = "A", "Total" = "TOTAL"),
                                  selected = c("Y","A")) 
         ), 
-      
-      
+      # Select F/M ratio Graph
       fluidRow( 
         column(10,
-               h5("Female/Male rate")
+               h5("Female/Male ratio")
         )
       ),     
       fluidRow(
@@ -61,7 +73,7 @@ shinyUI(fluidPage(
                checkboxInput("chooserateGraph", label = "Graph", value = TRUE)
         ) 
       ),
-      
+      # Select Speed Graph
       fluidRow( 
         column(10,
                h5("Monthly Speed")
@@ -83,12 +95,14 @@ shinyUI(fluidPage(
     ),
     
   mainPanel(
+    # Display Gender Graph
      conditionalPanel(
         condition="input.choosegendGraph == true",
         fluidRow(
         column(12, plotOutput("gendPlot"))
         )
       ),
+    # Disply Age Group Graph
     conditionalPanel(
     condition="input.chooseageGraph == true",
         fluidRow(
@@ -96,6 +110,7 @@ shinyUI(fluidPage(
                plotOutput("agePlot"))
         )
       ),
+    # Display F/M ratio Graph
     conditionalPanel(
       condition="input.chooserateGraph == true",
       fluidRow(
@@ -103,6 +118,7 @@ shinyUI(fluidPage(
                plotOutput("quotPlot"))
       )
     ),
+    # Display Speed Graph
     conditionalPanel(
       condition="input.choosespeedGraph == true",
       fluidRow(
