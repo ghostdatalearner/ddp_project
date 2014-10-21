@@ -214,43 +214,55 @@ WarningGraph <- function(Message)
 
 # Server function
 shinyServer(function(input, output) {
-  # Just for testing
-  # output$range <- renderText({input$slideryears})
+  
+  output$msg <- renderText("Please, choose the graphs you want to generate using the left panel options. Graph display may take up to 30 seconds in Shinyapps.io server. Thank you for your patience...")
   
   # Reactive Gender plot generation
   output$gendPlot <- renderPlot({
-    if (length(input$checkGender) == 0)
-      plot1 <- WarningGraph("Choose at least one Gender option, please")
-    else{
-      datosplot <- subset_date(dtotages, input$slideryears[1], input$slideryears[2])
-      plot1 <- processgendevolution(datosplot, gender=input$checkGender)
+    if (input$choosegendGraph){
+      output$msg = renderText("")
+      if (length(input$checkGender) == 0)
+        plot1 <- WarningGraph("Choose at least one Gender option, please")
+      else{
+        datosplot <- subset_date(dtotages, input$slideryears[1], input$slideryears[2])
+        plot1 <- processgendevolution(datosplot, gender=input$checkGender)
+      }
+      print(plot1)
     }
-    print(plot1)
   })
 
   # Reactive Age plot generation
   output$agePlot <- renderPlot({
-    if (length(input$checkAge) == 0)
-      plot2 <- WarningGraph("Choose at least one Age Group, please")
-    else{
-      datosplot <- subset_date(dtotgend, input$slideryears[1], input$slideryears[2])
-      plot2 <- processageevolution(datosplot, agegroup=input$checkAge)
+    if (input$chooseageGraph){
+      output$msg = renderText("")
+      if (length(input$checkAge) == 0)
+        plot2 <- WarningGraph("Choose at least one Age Group, please")
+      else{
+        datosplot <- subset_date(dtotgend, input$slideryears[1], input$slideryears[2])
+        plot2 <- processageevolution(datosplot, agegroup=input$checkAge)
+      }
+      print(plot2)
     }
-    print(plot2)
   })
 
   # Reactive F/M Ratio plot generation
   output$quotPlot <- renderPlot({
-    datosquot <- subset_date(dquotgend, input$slideryears[1], input$slideryears[2])
-    plot3 <- paintquot(datosquot, xlab = "Date", ylab = "Ratio", title = "Female/Male Unemployment Ratio")
-    print(plot3)
+    if (input$chooserateGraph){
+      output$msg = renderText("")
+      datosquot <- subset_date(dquotgend, input$slideryears[1], input$slideryears[2])
+      plot3 <- paintquot(datosquot, xlab = "Date", ylab = "Ratio", title = "Female/Male Unemployment Ratio")
+      print(plot3)
+    }
   })
 
   # Reactive Speed plot generation
   output$speedPlot <- renderPlot({
-    datosspeed <- subset_date(dquotgend, input$slideryears[1], input$slideryears[2])
-    plot4 <- paintspeed(datosspeed, xlab = "Date", ylab = "Rate", title = "Unemploment monthly growth rate (%)")
-    print(plot4)
+    if (input$choosespeedGraph){
+      output$msg = renderText("")
+      datosspeed <- subset_date(dquotgend, input$slideryears[1], input$slideryears[2])
+      plot4 <- paintspeed(datosspeed, xlab = "Date", ylab = "Rate", title = "Unemploment monthly growth rate (%)")
+      print(plot4)
+    }
   })
 
 })
