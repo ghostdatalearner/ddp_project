@@ -20,6 +20,7 @@ shinyUI(fluidPage(
     of the turning point and that is what Female/Male Ratio graph shows. Finally, the Monthly Speed
     graph helps to locate the critical periods of Spanish unemployment growth."),
   p(""),
+  p("IMPORTANT NOTICE: First graph display may take up to 30 seconds in Shinyapps.io server. Thank you for your patience"),
   p(""),
   a(href="usermanual.pdf","User Manual",target="_blank"),p(""),
   sidebarLayout(

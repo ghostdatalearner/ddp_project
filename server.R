@@ -215,7 +215,7 @@ WarningGraph <- function(Message)
 # Server function
 shinyServer(function(input, output) {
   
-  output$msg <- renderText("Please, choose the graphs you want to generate using the left panel options. Graph display may take up to 30 seconds in Shinyapps.io server. Thank you for your patience...")
+  output$msg <- renderText("Please, choose the graphs you want to generate using the left panel options.")
   
   # Reactive Gender plot generation
   output$gendPlot <- renderPlot({
