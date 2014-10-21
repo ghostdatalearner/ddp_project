@@ -55,7 +55,7 @@ shinyUI(fluidPage(
       # Age Group Options
       fluidRow(
         column(5,
-               checkboxInput("chooseageGraph", label = "Graph", value = TRUE)
+               checkboxInput("chooseageGraph", label = "Graph", value = FALSE)
         ),
         column(5,
                checkboxGroupInput("checkAge",  label="",
@@ -70,7 +70,7 @@ shinyUI(fluidPage(
       ),     
       fluidRow(
         column(5,
-               checkboxInput("chooserateGraph", label = "Graph", value = TRUE)
+               checkboxInput("chooserateGraph", label = "Graph", value = FALSE)
         ) 
       ),
       # Select Speed Graph
@@ -81,7 +81,7 @@ shinyUI(fluidPage(
       ),     
       fluidRow(
         column(5,
-               checkboxInput("choosespeedGraph", label = "Graph", value = TRUE)
+               checkboxInput("choosespeedGraph", label = "Graph", value = FALSE)
         ) 
       ),
       fluidRow(
@@ -97,14 +97,14 @@ shinyUI(fluidPage(
   mainPanel(
     # Display Gender Graph
      conditionalPanel(
-        condition="input.choosegendGraph == true",
+        condition="input.choosegendGraph",
         fluidRow(
         column(12, plotOutput("gendPlot"))
         )
       ),
     # Disply Age Group Graph
     conditionalPanel(
-    condition="input.chooseageGraph == true",
+    condition="input.chooseageGraph",
         fluidRow(
         column(12,
                plotOutput("agePlot"))
@@ -112,7 +112,7 @@ shinyUI(fluidPage(
       ),
     # Display F/M ratio Graph
     conditionalPanel(
-      condition="input.chooserateGraph == true",
+      condition="input.chooserateGraph",
       fluidRow(
         column(12,
                plotOutput("quotPlot"))
@@ -120,7 +120,7 @@ shinyUI(fluidPage(
     ),
     # Display Speed Graph
     conditionalPanel(
-      condition="input.choosespeedGraph == true",
+      condition="input.choosespeedGraph",
       fluidRow(
         column(12,
                plotOutput("speedPlot"))
